@@ -362,6 +362,7 @@ export class WakaTime {
     vscode.window.onDidChangeTextEditorSelection(this.onChangeSelection, this, subscriptions);
     vscode.workspace.onDidChangeTextDocument(this.onChangeTextDocument, this, subscriptions);
     vscode.window.onDidChangeActiveTextEditor(this.onChangeTab, this, subscriptions);
+    vscode.window.tabGroups.onDidChangeTabs(this.onDidChangeTabs, this, subscriptions);
     vscode.workspace.onDidSaveTextDocument(this.onSave, this, subscriptions);
 
     vscode.workspace.onDidChangeNotebookDocument(this.onChangeNotebook, this, subscriptions);
@@ -380,11 +381,13 @@ export class WakaTime {
   }
 
   private onDebuggingChanged(): void {
+    this.logger.debug('onDebuggingChanged');
     this.updateLineNumbers();
     this.onEvent(false);
   }
 
   private onDidStartDebugSession(): void {
+    this.logger.debug('onDidStartDebugSession');
     this.isDebugging = true;
     this.isAICodeGenerating = false;
     this.updateLineNumbers();
@@ -392,12 +395,14 @@ export class WakaTime {
   }
 
   private onDidTerminateDebugSession(): void {
+    this.logger.debug('onDidTerminateDebugSession');
     this.isDebugging = false;
     this.updateLineNumbers();
     this.onEvent(false);
   }
 
   private onDidStartTask(e: vscode.TaskStartEvent): void {
+    this.logger.debug('onDidStartTask');
     if (e.execution.task.isBackground) return;
     if (e.execution.task.detail && e.execution.task.detail.indexOf('watch') !== -1) return;
     this.isCompiling = true;
@@ -407,18 +412,21 @@ export class WakaTime {
   }
 
   private onDidEndTask(): void {
+    this.logger.debug('onDidEndTask');
     this.isCompiling = false;
     this.updateLineNumbers();
     this.onEvent(false);
   }
 
   private onChangeSelection(e: vscode.TextEditorSelectionChangeEvent): void {
+    this.logger.debug('onChangeSelection');
     if (e.kind === vscode.TextEditorSelectionChangeKind.Command) return;
     this.updateLineNumbers();
     this.onEvent(false);
   }
 
   private onChangeTextDocument(e: vscode.TextDocumentChangeEvent): void {
+    this.logger.debug('onChangeTextDocument');
     if (Utils.isAIChatSidebar(e.document?.uri)) {
       this.isAICodeGenerating = true;
       this.AIdebounceCount = 0;
@@ -450,23 +458,34 @@ export class WakaTime {
   }
 
   private onChangeTab(_e: vscode.TextEditor | undefined): void {
+    this.logger.debug('onChangeTab');
     this.isAICodeGenerating = false;
     this.updateLineNumbers();
     this.onEvent(false);
   }
 
+  private onDidChangeTabs(_e: vscode.TabChangeEvent): void {
+    this.logger.debug('onDidChangeTabs');
+    if (!this.isAICodeGenerating) return;
+    this.updateLineNumbers();
+    this.onEvent(false);
+  }
+
   private onSave(_e: vscode.TextDocument | undefined): void {
+    this.logger.debug('onSave');
     this.isAICodeGenerating = false;
     this.updateLineNumbers();
     this.onEvent(true);
   }
 
   private onChangeNotebook(_e: vscode.NotebookDocumentChangeEvent): void {
+    this.logger.debug('onChangeNotebook');
     this.updateLineNumbers();
     this.onEvent(false);
   }
 
   private onSaveNotebook(_e: vscode.NotebookDocument | undefined): void {
+    this.logger.debug('onSaveNotebook');
     this.updateLineNumbers();
     this.onEvent(true);
   }
