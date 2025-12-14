@@ -1,6 +1,11 @@
 
 # Changelog
 
+## 25.5.1 (2025-12-14)
+
+- Prevent long running terminal command from triggering heartbeats.
+  [#467](https://github.com/wakatime/vscode-wakatime/issues/467)
+
 ## 25.5.0 (2025-11-28)
 
 - Improve support for remote ssh workspaces and containers.
